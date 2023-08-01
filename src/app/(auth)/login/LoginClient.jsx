@@ -11,6 +11,9 @@ import Button from "../../../components/button/Button";
 import AutoSignInCheckbox from "@/components/autoSignInCheckbox/AutoSignInCheckbox";
 import Divider from "@/components/divider/Divider";
 import Link from "next/link";
+import { toast } from "react-toastify";
+import { auth } from "../../../firebase/firebase";
+import { GoogleAuthProvider, signWithPopup } from "firebase/auth";
 
 const LoginClient = () => {
   const [email, setEmail] = useState("");
@@ -25,12 +28,33 @@ const LoginClient = () => {
   };
 
   const loginUser = (e) => {
-    // submit event를 막음
     e.preventDefault();
+    toast.info("성공!");
     setIsLoading(true);
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        setIsLoading(false);
+        toast.success("로그인에 성공했습니다.");
+        redirectUser();
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message);
+      });
   };
 
-  const signInWithGoogle = () => {};
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    signWithPopup(auth, provider)
+      .then((result) => {
+        toast.success("로그인에 성공했습니다.");
+        redirectUser();
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
 
   return (
     <>
@@ -82,7 +106,7 @@ const LoginClient = () => {
                 </Button>
 
                 <Divider />
-                <Button onclick={signInWithGoogle}>구글 로그인</Button>
+                <Button onClick={signInWithGoogle}>구글 로그인</Button>
               </div>
             </div>
           </form>
